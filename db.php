@@ -16,7 +16,7 @@ class DB {
    }
   
     function connect() {
-        $this->link = mysql_connect($this->my_host, $this->my_user, $this->my_pass);
+        $this->link = mysql_connect($this->my_host, $this->my_user, $this->my_pass, false, MYSQL_CLIENT_SSL);
 		if (!$this->link) {
 			printf("Error: Connection to MySQL server '%s' failed.<BR>\n", $this->my_host);
 			return;
