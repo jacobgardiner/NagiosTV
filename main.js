@@ -2,7 +2,7 @@
  * 
  * Nagios TV Monitor
  * by Christopher P Carey 2010-12-09
- * Last Modified Aug 11 2012
+ * Last Modified Nov 12 2012
  * 
  * main.js
  *
@@ -35,8 +35,8 @@ function emberStart() {
         history: [],
         
         versionMismatch: false,
-        version: '4',
-        versionString:'0.4',
+        version: '5',
+        versionString:'0.5',
         versionServer: '',
         versionStringServer: '',
 
@@ -54,9 +54,18 @@ function emberStart() {
                 data: "func=versioncheck&client_version="+that.get('versionCurrent'),
                 dataType: "json",
                 timeout: 5000,
-                error: function(data) {
+                error: function(data1, data2) {
                     App.log('versionCheck() Error getting version');
-                    //App.log(data);
+                    
+                    var jsondata = eval('(' + data1.responseText + ')');
+
+                    if (jsondata.OK == 0) {
+                        App.log('versionCheck() Error VersionCheck');
+                        $('#disconnected').html(jsondata.ERROR);
+                    }
+                    
+                    cancelTimers();
+                    
                 },
                 success: function(data){
                     
@@ -65,6 +74,10 @@ function emberStart() {
                     var jsondata = eval('(' + data + ')');
                     //App.log(jsondata);
 
+                    if (jsondata.OK == 0) {
+                        App.log('versionCheck() Error VersionCheck');
+                    }
+                    
                     that.set('versionServer', jsondata.version);
                     that.set('versionStringServer', jsondata.version_string);
 
@@ -520,6 +533,7 @@ function emberStart() {
             });
             */
             
+            /*
             $('#remoteTimeDiv').hover(
               function(){
                 //in
@@ -530,6 +544,7 @@ function emberStart() {
                 //out
                 $('#clockinfo').slideUp();
             });
+            */
             
         }
 
@@ -742,12 +757,9 @@ function emberStart() {
             var that = this;
             var diffhours = App.currentController.get('timeZoneDiffHours');
             var date1 = new Date(Date.parse(content.last_state_change));
-            //var date1 = new timezoneJS.Date(new Date(Date.parse(content.last_state_change)).toString(), App.currentController.get('localTimeZone'));
+            
             date1.addHours(-diffhours);
-            // set Local Time
-            //var localdate = new timezoneJS.Date(new Date().toString(), App.currentController.get('localTimeZone'));
-
-
+         
             var remotedate = App.currentController.get("remoteTimeObject");
 
             var diff = remotedate - date1;
@@ -785,22 +797,23 @@ function emberStart() {
 
 function updateTime() {
 
-    //var now = new Date();
-    //var hours = now.getHours(); if (hours < 10) hours = '0'+hours;
-    //var minutes = now.getMinutes(); if (minutes < 10) minutes = '0'+minutes;
-    //var seconds = now.getSeconds(); if (seconds < 10) seconds = '0'+seconds;
-    //datePageLoad = hours +':'+ minutes +':'+ seconds;
-    //var str = hours + ':' + minutes + ':' + seconds;
-    //$('#currentTime').html(str);
-    
-    
-    var localdate = new timezoneJS.Date(new Date().toString(), 'America/Los_Angeles');
+    var localdate = new timezoneJS.Date(new Date().toString(), config_timezone);
     
     $('#localTime').html(localdate.toString());
-    //$('#localTime').html(new Date().toString());
+
 }
 
+function cancelTimers() {
 
+    clearTimeout(g_timerCurrent);
+    clearTimeout(g_timerAcked);
+    clearTimeout(g_timerHistory);
+
+}
+
+var g_timerCurrent;
+var g_timerAcked;
+var g_timerHistory;
 
 $(document).ready(function(){
 
@@ -826,13 +839,13 @@ $(document).ready(function(){
     
     // Kick off the update timers
     App.currentController.updateCurrent(); // Update current Now
-    setInterval("App.currentController.updateCurrent()", refreshCurrent * 1000); // Update page every n seconds
+    g_timerCurrent = setInterval("App.currentController.updateCurrent()", refreshCurrent * 1000); // Update page every n seconds
     
     App.currentController.updateAcked();
-    setInterval("App.currentController.updateAcked()", refreshAcked * 1000);
+    g_timerAcked = setInterval("App.currentController.updateAcked()", refreshAcked * 1000);
     
     App.currentController.updateHistory();
-    setInterval("App.currentController.updateHistory()", refreshNotification * 1000);
+    g_timerHistory = setInterval("App.currentController.updateHistory()", refreshNotification * 1000);
     
     setInterval("updateTime()", 1000);
 
