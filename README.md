@@ -9,7 +9,6 @@ Hosts and services are clickable to jump to the Nagios web interface
 - Client Side: HTML5, Javascript, jQuery, EmberJS, Twitter Bootstrap
 - Server Side: PHP, MySQL
 - Data transfer: AJAX, JSON
-- Piecon https://github.com/lipka/piecon
 
 Screenshot of 5 Nagios servers on one TV (5-in-1)
 ------------
@@ -22,10 +21,7 @@ Requirements
 
 Packages needed by api.php:
 
-php5
-php5-mysql
-php5-curl
-libapache2-mod-php5
+apt-get install php5 php5-mysql php5-curl libapache2-mod-php5
 
 This project is built upon Nagios ndoutils.
 NDOUtils allows you to export current and historical data from one or more Nagios instances to a MySQL database.
@@ -44,16 +40,21 @@ Installation
 - edit config.php and set the values 
 - edit config.js and set the values
 
+* Make sure date_default_timezone_set is set in your PHP.ini.
+* date_default_timezone_set('Europe/London');
+
 Upgrading
 ------------
 - $ cd NagiosTV
 - $ git pull
-- Your customized config files (config.js, config.php) will not be overwritten.
+
+Your customized config files (config.js, config.php) will not be overwritten.
   You may want to check config.php.dist and config.js.dist for new options
-  until I get around to automating that process
-- If you are having problems, backup your NagiosTV folder, or move it.
+  until I get around to automating that process.
+  
+If you are having problems, backup your NagiosTV folder, or move it.
   Then run through Installation above, and copy your old
-  config.js and config.php into the new NagiosTV folder
+  config.js and config.php into the new NagiosTV folder.
 
 How to show multiple Nagios on one TV
 ------------
@@ -63,7 +64,6 @@ TODO
 ------------
 Features to work on next:
 
-- Fix the ACKed section
 - a config.php page which checks prerequisites on the server side and communicates that down to the client if there is a problem.
 - Improve version number
 - Intelligent auto-updater?
